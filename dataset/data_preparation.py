@@ -132,8 +132,8 @@ class StockPredictionDataPrep:
         print("=" * 60)
 
         # Select feature columns (exclude id, name, and target)
-        exclude_cols = ['id_obat', 'nama_obat', 'predicted_required_stock']
-        feature_cols = [col for col in self.df.columns if col not in exclude_cols]
+        # exclude_cols = ['id_obat', 'nama_obat', 'predicted_required_stock']
+        feature_cols = ['total_masuk', 'total_keluar', 'stok_saat_ini', 'frekuensi_transaksi', 'demand_volatility', 'avg_transaksi','avg_daily_sales', 'safety_stock']
 
         self.X = self.df[feature_cols].copy()
         self.y = self.df['predicted_required_stock'].copy()
