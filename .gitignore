@@ -43,13 +43,13 @@ env
 *.ipynb
 
 # Data files (keep only structure)
-dataset/training_data_*.csv
-dataset/prepared_data.csv
-!dataset/.gitkeep
+# dataset/training_data_*.csv
+# dataset/prepared_data.csv
+# !dataset/.gitkeep
 
-# Model files (trained models)
-model/*.pkl
-!model/.gitkeep
+# # Model files (trained models)
+# model/*.pkl
+# !model/.gitkeep
 
 # Logs
 logs/

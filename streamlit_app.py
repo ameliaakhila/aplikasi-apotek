@@ -4,6 +4,7 @@ import pickle
 import numpy as np
 import plotly.express as px
 from pathlib import Path
+import os
 
 # --- Page Config ---
 st.set_page_config(page_title="Stock Prediction Dashboard", layout="wide", page_icon="💊")
@@ -46,9 +47,16 @@ st.markdown("""
 # Load model function
 @st.cache_resource
 def load_model():
-    model_path = Path("backend/model/stock_prediction_model.pkl")
-    if not model_path.exists():
+    # Mengambil lokasi folder tempat streamlit_app.py berada
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    # Menggabungkan path dengan folder model
+    model_path = os.path.join(current_dir, "model", "stock_prediction_model.pkl")
+    
+    if not os.path.exists(model_path):
+        # Tampilkan path yang dicari untuk debugging di log
+        st.error(f"File tidak ditemukan di: {model_path}")
         return None
+    
     with open(model_path, "rb") as f:
         return pickle.load(f)
 
@@ -86,7 +94,7 @@ if model_data:
 
         # Actual vs Predicted Plot
         st.subheader("Actual vs. Predicted Stock")
-        data_path = Path("backend/dataset/prepared_data.csv")
+        data_path = Path("dataset/prepared_data.csv")
         if data_path.exists():
             df = pd.read_csv(data_path)
             sample_df = df.sample(n=min(500, len(df)), random_state=42)
@@ -168,7 +176,7 @@ if model_data:
     # --- Tab 4: Data Preview ---
     with tab4:
         st.subheader("Sample Training Data")
-        data_path = Path("backend/dataset/prepared_data.csv")
+        data_path = Path("dataset/prepared_data.csv")
         if data_path.exists():
             df_sample = pd.read_csv(data_path).head(100)
             st.dataframe(df_sample, use_container_width=True)
@@ -182,11 +190,11 @@ if model_data:
         st.markdown("Test how the model responds to abnormal conditions (e.g., sudden sales spike).")
         if st.button("Run Drift Simulation"):
             import simulate_drift
-            simulate_drift.simulate_drift("backend/model/stock_prediction_model.pkl", 
-                                          "backend/dataset/prepared_data.csv", 
-                                          "backend/dataset/drifted_data.csv")
+            simulate_drift.simulate_drift("model/stock_prediction_model.pkl", 
+                                          "dataset/prepared_data.csv", 
+                                          "dataset/drifted_data.csv")
             
-        drift_path = Path("backend/dataset/drifted_data.csv")
+        drift_path = Path("dataset/drifted_data.csv")
         if drift_path.exists():
             df_drift = pd.read_csv(drift_path)
             st.write("### Simulation Results: Demand Shock Scenario")
