@@ -27,7 +27,7 @@ class StockPredictionDataPrep:
 
     def load_data(self):
         """Load CSV data"""
-        print("📂 Loading CSV data...")
+        print(" Loading CSV data...")
         try:
             self.df = pd.read_csv(self.csv_file)
             print(f"✅ Loaded {len(self.df)} records from {self.csv_file}")
@@ -39,7 +39,7 @@ class StockPredictionDataPrep:
 
     def explore_data(self):
         """Perform exploratory data analysis"""
-        print("\n📊 Exploratory Data Analysis")
+        print("\n Exploratory Data Analysis")
         print("=" * 60)
 
         print("\n1. Data Shape & Info:")
@@ -63,7 +63,7 @@ class StockPredictionDataPrep:
 
     def clean_data(self):
         """Handle missing values, duplicates, and outliers"""
-        print("\n🧹 Data Cleaning")
+        print("\n Data Cleaning")
         print("=" * 60)
 
         # Remove duplicates
@@ -100,7 +100,7 @@ class StockPredictionDataPrep:
 
     def validate_data(self):
         """Validate data consistency"""
-        print("\n✔️ Data Validation")
+        print("\n Data Validation")
         print("=" * 60)
 
         # Check for negative values in quantities
@@ -118,7 +118,7 @@ class StockPredictionDataPrep:
 
         # Validate target variable
         if 'predicted_required_stock' in self.df.columns:
-            print(f"\n📈 Target variable (predicted_required_stock):")
+            print(f"\n Target variable (predicted_required_stock):")
             print(f"   Min: {self.df['predicted_required_stock'].min():.2f}")
             print(f"   Max: {self.df['predicted_required_stock'].max():.2f}")
             print(f"   Mean: {self.df['predicted_required_stock'].mean():.2f}")
@@ -128,14 +128,30 @@ class StockPredictionDataPrep:
 
     def prepare_features(self):
         """Prepare features for modeling"""
-        print("\n🔧 Feature Preparation")
+        print("\n Feature Preparation")
         print("=" * 60)
 
-        # Select feature columns (exclude id, name, and target)
-        # exclude_cols = ['id_obat', 'nama_obat', 'predicted_required_stock']
-        feature_cols = ['total_masuk', 'total_keluar', 'stok_saat_ini', 'frekuensi_transaksi', 'demand_volatility', 'avg_transaksi','avg_daily_sales', 'safety_stock']
+        # 8 Fitur utama yang konsisten antara database Laravel dan model ML
+        # Urutan ini HARUS sama dengan yang dikirim ke Flask API
+        feature_cols = [
+            'total_masuk',          # Total stok masuk historis
+            'total_keluar',         # Total stok keluar historis
+            'stok_saat_ini',        # Stok saat ini
+            'frekuensi_transaksi',  # Frekuensi transaksi 3 bulan (data variasi)
+            'avg_transaksi',        # Rata-rata qty per transaksi
+            'demand_volatility',    # Volatilitas permintaan harian
+            'avg_daily_sales',      # Rata-rata penjualan harian (3 bulan)
+            'safety_stock',         # Safety stock threshold
+        ]
 
-        self.X = self.df[feature_cols].copy()
+        # Hanya pakai kolom yang benar-benar ada di dataframe
+        available_features = [col for col in feature_cols if col in self.df.columns]
+        missing = [col for col in feature_cols if col not in self.df.columns]
+
+        if missing:
+            print(f"\n⚠️  Kolom tidak ditemukan di CSV (akan diabaikan): {missing}")
+
+        self.X = self.df[available_features].copy()
         self.y = self.df['predicted_required_stock'].copy()
 
         print(f"✅ Features prepared: {self.X.shape[1]} features, {self.X.shape[0]} samples")
@@ -150,7 +166,7 @@ class StockPredictionDataPrep:
 
     def get_feature_statistics(self):
         """Display feature statistics"""
-        print("\n📊 Feature Statistics")
+        print("\n Feature Statistics")
         print("=" * 60)
 
         for col in self.X.columns:
@@ -168,7 +184,7 @@ class StockPredictionDataPrep:
 
     def export_prepared_data(self, output_path):
         """Export prepared data to CSV"""
-        print(f"\n💾 Exporting prepared data to {output_path}")
+        print(f"\n Exporting prepared data to {output_path}")
 
         prepared_df = pd.concat([self.X, self.y], axis=1)
         prepared_df.to_csv(output_path, index=False)
