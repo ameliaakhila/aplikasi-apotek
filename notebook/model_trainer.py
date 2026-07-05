@@ -319,12 +319,14 @@ class StockPredictionModel:
         # Ensure directory exists
         Path(model_path).parent.mkdir(parents=True, exist_ok=True)
 
+        import sklearn as _sklearn
         # Save model
         model_dict = {
             'model': self.model,
             'feature_names': self.feature_names,
             'training_history': self.training_history,
-            'trained_date': datetime.now().isoformat()
+            'trained_date': datetime.now().isoformat(),
+            'sklearn_version': _sklearn.__version__,  # PENTING untuk debug mismatch versi
         }
 
         with open(model_path, 'wb') as f:
